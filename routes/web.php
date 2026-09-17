@@ -30,6 +30,10 @@ Route::middleware('auth')->group(function () {
 
     Route::delete('/profile', [ProfileController::class, 'destroy'])
         ->name('profile.destroy');
+
+    Route::get('/my-bookings', function () {
+    return view('bookings.index');
+})->name('bookings.index');
 });
 
 require __DIR__.'/auth.php';
