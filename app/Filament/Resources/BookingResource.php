@@ -6,6 +6,8 @@ use App\Filament\Resources\BookingResource\Pages;
 use App\Models\Booking;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
+use Filament\Forms\Set;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -38,18 +40,32 @@ class BookingResource extends Resource
                     ->relationship('property', 'name')
                     ->searchable()
                     ->preload()
-                    ->required(),
+                    ->required()
+                    ->live()
+                    ->afterStateUpdated(function (Get $get, Set $set) {
+                        self::calculateTotalPrice($get, $set);
+                    }),
 
                 Forms\Components\DatePicker::make('start_date')
                     ->label('Date d’arrivée')
                     ->required()
-                    ->native(false),
+                    ->native(false)
+                    ->minDate(now()->startOfDay())
+                    ->live()
+                    ->afterStateUpdated(function (Get $get, Set $set) {
+                        self::calculateTotalPrice($get, $set);
+                    }),
 
                 Forms\Components\DatePicker::make('end_date')
                     ->label('Date de départ')
                     ->required()
                     ->native(false)
-                    ->after('start_date'),
+                    ->minDate(now()->startOfDay())
+                    ->after('start_date')
+                    ->live()
+                    ->afterStateUpdated(function (Get $get, Set $set) {
+                        self::calculateTotalPrice($get, $set);
+                    }),
 
                 Forms\Components\Select::make('status')
                     ->label('Statut')
@@ -67,6 +83,35 @@ class BookingResource extends Resource
                     ->prefix('DT')
                     ->required(),
             ]);
+    }
+
+    protected static function calculateTotalPrice(Get $get, Set $set): void
+    {
+        $propertyId = $get('property_id');
+        $startDate = $get('start_date');
+        $endDate = $get('end_date');
+
+        if (!$propertyId || !$startDate || !$endDate) {
+            return;
+        }
+
+        $property = \App\Models\Property::find($propertyId);
+
+        if (!$property) {
+            return;
+        }
+
+        $start = \Carbon\Carbon::parse($startDate);
+        $end = \Carbon\Carbon::parse($endDate);
+
+        if ($end->greaterThan($start)) {
+            $nights = $start->diffInDays($end);
+
+            $set(
+                'total_price',
+                $nights * (float) $property->price_per_night
+            );
+        }
     }
 
     public static function table(Table $table): Table
@@ -139,9 +184,7 @@ class BookingResource extends Resource
 
     public static function getRelations(): array
     {
-        return [
-            //
-        ];
+        return [];
     }
 
     public static function getPages(): array

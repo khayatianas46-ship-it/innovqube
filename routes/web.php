@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminRegisteredUserController;
 use App\Http\Controllers\ProfileController;
 use App\Models\Property;
 use Illuminate\Support\Facades\Route;
@@ -32,8 +33,10 @@ Route::middleware('auth')->group(function () {
         ->name('profile.destroy');
 
     Route::get('/my-bookings', function () {
-    return view('bookings.index');
-})->name('bookings.index');
+        return view('bookings.index');
+    })->name('bookings.index');
 });
+
+
 
 require __DIR__.'/auth.php';
