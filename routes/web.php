@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\Admin\AdminRegisteredUserController;
 use App\Http\Controllers\ProfileController;
 use App\Models\Property;
 use Illuminate\Support\Facades\Route;
@@ -11,17 +10,17 @@ Route::get('/', function () {
 
 Route::get('/dashboard', function () {
     return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+})->middleware(['auth:client', 'verified'])->name('dashboard');
 
 Route::get('/properties', function () {
     return view('properties.index');
-})->middleware('auth')->name('properties.index');
+})->middleware('auth:client')->name('properties.index');
 
 Route::get('/properties/{property}', function (Property $property) {
     return view('properties.show', compact('property'));
-})->middleware('auth')->name('properties.show');
+})->middleware('auth:client')->name('properties.show');
 
-Route::middleware('auth')->group(function () {
+Route::middleware('auth:client')->group(function () {
 
     Route::get('/profile', [ProfileController::class, 'edit'])
         ->name('profile.edit');
@@ -36,7 +35,5 @@ Route::middleware('auth')->group(function () {
         return view('bookings.index');
     })->name('bookings.index');
 });
-
-
 
 require __DIR__.'/auth.php';
