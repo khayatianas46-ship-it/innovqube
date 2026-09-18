@@ -23,13 +23,15 @@ Application web de gestion de réservations immobilières développée avec Lara
 - Création de réservations
 - Calcul automatique du prix total
 - Vérification des chevauchements
-- Consultation de mes réservations
+- Consultation de ses réservations
 - Annulation de ses propres réservations
 - Administration avec Filament
 - CRUD des propriétés
 - CRUD des réservations
+- Filtres dans l'administration
 - Validation côté serveur
 - Authorization avec Policies
+- Tests automatisés
 
 ## Installation
 
@@ -60,7 +62,7 @@ Copier le fichier `.env.example` vers `.env` :
 Copy-Item .env.example .env
 ```
 
-Puis configurer les informations MySQL dans `.env` :
+Configurer ensuite les informations MySQL dans `.env` :
 
 ```env
 DB_CONNECTION=mysql
@@ -93,6 +95,8 @@ php artisan migrate --seed
 
 Le seeder crée automatiquement 10 propriétés de démonstration.
 
+> Le compte administrateur doit être créé séparément si aucun administrateur n'existe encore dans la base.
+
 ### 8. Compiler les assets frontend
 
 Pour une version prête à utiliser :
@@ -107,21 +111,23 @@ npm run build
 php artisan serve
 ```
 
-L'application est disponible sur :
+L'application est disponible à :
 
 ```text
 http://127.0.0.1:8000
 ```
 
-L'administration Filament est disponible sur :
+L'administration Filament est disponible à :
 
 ```text
 http://127.0.0.1:8000/admin
 ```
 
-### Développement frontend
+L'accès à l'administration est réservé aux utilisateurs possédant le rôle administrateur.
 
-Pendant le développement, `npm run dev` peut être utilisé à la place de `npm run build` :
+## Développement frontend
+
+Pendant le développement, `npm run dev` peut être utilisé :
 
 ```bash
 npm run dev
@@ -134,6 +140,16 @@ php artisan serve
 ```
 
 ## Tests
+
+Les tests utilisent une base de données MySQL séparée afin de ne pas modifier la base de développement.
+
+Créer une base de données MySQL dédiée aux tests :
+
+```text
+innovqube_booking_test
+```
+
+La configuration PHPUnit utilise automatiquement cette base.
 
 Pour lancer les tests :
 
@@ -148,10 +164,29 @@ Résultat actuel :
 65 assertions
 ```
 
+Les tests couvrent notamment :
+
+- Le calcul du prix d'une réservation
+- La détection des chevauchements
+- L'autorisation d'annuler uniquement ses propres réservations
+
 ## Données de démonstration
 
-Le seeder crée 10 propriétés de démonstration.
+Le seeder crée 10 propriétés de démonstration avec :
+
+- Un nom
+- Une description
+- Un prix par nuit
+- Une capacité
+
+## Sécurité
+
+- Le fichier `.env` n'est pas versionné.
+- Les identifiants sensibles ne sont pas inclus dans le dépôt.
+- L'accès à Filament est réservé aux administrateurs.
+- Les réservations sont protégées par des Policies.
+- Les tests utilisent une base de données séparée.
 
 ## Auteur
 
-Anas Khayati
+**Anas Khayati**
