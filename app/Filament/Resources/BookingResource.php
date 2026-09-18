@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\BookingResource\Pages;
 use App\Models\Booking;
+use App\Models\Property;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
@@ -95,7 +96,7 @@ class BookingResource extends Resource
             return;
         }
 
-        $property = \App\Models\Property::find($propertyId);
+        $property = Property::find($propertyId);
 
         if (!$property) {
             return;
